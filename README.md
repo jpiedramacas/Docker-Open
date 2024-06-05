@@ -1,148 +1,92 @@
-# Guía de Comandos Fundamentales de Docker
+# Desplegar un Contenedor Docker Paso a Paso
 
-## Introducción
-Este documento sirve como una guía comprensiva de los comandos fundamentales de Docker esenciales para la gestión de contenedores e imágenes. Docker es una plataforma que permite a los desarrolladores automatizar el despliegue de aplicaciones dentro de contenedores ligeros y portátiles.
+Este documento proporciona una guía detallada y paso a paso sobre cómo desplegar un contenedor Docker desde la construcción de la imagen hasta la ejecución del contenedor. Se asume que ya tienes Docker instalado en tu sistema. Si no es así, por favor consulta la [documentación oficial de Docker](https://docs.docker.com/get-docker/) para las instrucciones de instalación.
 
-### Tabla de Contenidos
-1. [Listar Contenedores en Ejecución](#listar-contenedores-en-ejecución)
-2. [Detener un Contenedor](#detener-un-contenedor)
-3. [Iniciar un Contenedor](#iniciar-un-contenedor)
-4. [Ejecutar un Nuevo Contenedor](#ejecutar-un-nuevo-contenedor)
-5. [Construir una Imagen](#construir-una-imagen)
-6. [Descargar una Imagen](#descargar-una-imagen)
-7. [Listar Imágenes](#listar-imágenes)
-8. [Subir una Imagen](#subir-una-imagen)
-9. [Inspeccionar los Logs de un Contenedor](#inspeccionar-los-logs-de-un-contenedor)
-10. [Eliminar Contenedores e Imágenes](#eliminar-contenedores-e-imágenes)
+## Paso 1: Preparar el Dockerfile
+El Dockerfile es un archivo de texto que contiene todas las instrucciones necesarias para construir una imagen Docker.
 
-## Listar Contenedores en Ejecución
-### `docker ps`
-Este comando lista todos los contenedores que están actualmente en ejecución.
+### Ejemplo de Dockerfile
+Crea un archivo llamado `Dockerfile` en tu directorio de trabajo y añade el siguiente contenido:
 
-#### Uso:
-```sh
-docker ps
-```
-Para ver todos los contenedores (en ejecución y detenidos):
-```sh
-docker ps -a
+```Dockerfile
+# Usar una imagen base de Ubuntu
+FROM ubuntu:latest
+
+# Actualizar el sistema y instalar nginx
+RUN apt-get update && apt-get install -y nginx
+
+# Exponer el puerto 80 para el servidor web
+EXPOSE 80
+
+# Comando para ejecutar nginx en primer plano
+CMD ["nginx", "-g", "daemon off;"]
 ```
 
-## Detener un Contenedor
-### `docker stop`
-Este comando detiene un contenedor en ejecución.
+## Paso 2: Construir la Imagen Docker
+Utiliza el comando `docker build` para construir la imagen a partir del Dockerfile.
 
-#### Uso:
-```sh
-docker stop <id_del_contenedor>
+### Comando:
+```bash
+docker build -t mi_imagen_nginx .
 ```
-Reemplaza `<id_del_contenedor>` con el ID o nombre del contenedor.
+**Explicación:**
+- `-t mi_imagen_nginx`: Etiqueta la imagen con el nombre `mi_imagen_nginx`.
+- `.`: Indica que Docker debe buscar el Dockerfile en el directorio actual.
 
-## Iniciar un Contenedor
-### `docker start`
-Este comando inicia un contenedor detenido.
+## Paso 3: Verificar la Imagen Construida
+Comprueba que la imagen se haya construido correctamente utilizando el comando `docker images`.
 
-#### Uso:
-```sh
-docker start <id_del_contenedor>
-```
-Reemplaza `<id_del_contenedor>` con el ID o nombre del contenedor.
-
-## Ejecutar un Nuevo Contenedor
-### `docker run`
-Este comando ejecuta un nuevo contenedor desde una imagen especificada.
-
-#### Uso:
-```sh
-docker run <nombre_de_la_imagen>
-```
-Para ejecutar un contenedor en modo desatendido con mapeo de puertos y montaje de volúmenes:
-```sh
-docker run -d -p 80:80 -v /ruta/en/host:/ruta/en/contenedor <nombre_de_la_imagen>
-```
-- `-d`: Ejecutar el contenedor en modo desatendido.
-- `-p 80:80`: Mapear el puerto 80 del host al puerto 80 del contenedor.
-- `-v /ruta/en/host:/ruta/en/contenedor`: Montar un volumen.
-
-## Construir una Imagen
-### `docker build`
-Este comando construye una imagen a partir de un Dockerfile.
-
-#### Uso:
-```sh
-docker build -t <nombre_de_la_imagen> .
-```
-- `-t <nombre_de_la_imagen>`: Etiqueta la imagen con un nombre.
-- `.`: Contexto para la construcción, usualmente el directorio actual.
-
-## Descargar una Imagen
-### `docker pull`
-Este comando descarga una imagen desde un registro de Docker (por ejemplo, Docker Hub).
-
-#### Uso:
-```sh
-docker pull <nombre_de_la_imagen>
-```
-
-## Listar Imágenes
-### `docker images`
-Este comando lista todas las imágenes almacenadas localmente.
-
-#### Uso:
-```sh
+### Comando:
+```bash
 docker images
 ```
 
-## Subir una Imagen
-### `docker push`
-Este comando sube una imagen a un registro de Docker.
+## Paso 4: Ejecutar el Contenedor
+Utiliza el comando `docker run` para crear y ejecutar un contenedor a partir de la imagen que acabas de construir.
 
-#### Uso:
-```sh
-docker push <nombre_de_la_imagen>
+### Comando:
+```bash
+docker run -d -p 80:80 --name mi_contenedor_nginx mi_imagen_nginx
 ```
-Asegúrate de haber iniciado sesión en el registro y que el nombre de la imagen incluya el repositorio (por ejemplo, `usuario/nombre_de_la_imagen`).
+**Explicación:**
+- `-d`: Ejecuta el contenedor en segundo plano (detached).
+- `-p 80:80`: Mapea el puerto 80 del host al puerto 80 del contenedor.
+- `--name mi_contenedor_nginx`: Asigna un nombre al contenedor (`mi_contenedor_nginx`).
+- `mi_imagen_nginx`: Nombre de la imagen a partir de la cual se creará el contenedor.
 
-## Inspeccionar los Logs de un Contenedor
-### `docker logs`
-Este comando obtiene los logs de un contenedor.
+## Paso 5: Verificar que el Contenedor está Corriendo
+Utiliza el comando `docker ps` para listar los contenedores en ejecución y verificar que tu contenedor está corriendo.
 
-#### Uso:
-```sh
-docker logs <id_del_contenedor>
-```
-Para seguir los logs en tiempo real:
-```sh
-docker logs -f <id_del_contenedor>
+### Comando:
+```bash
+docker ps
 ```
 
-## Eliminar Contenedores e Imágenes
-### `docker rm`
-Este comando elimina un contenedor.
+## Paso 6: Acceder al Servicio en el Navegador
+Abre un navegador web y navega a `http://localhost` (o `http://<tu-dirección-IP>` si estás en un servidor remoto). Deberías ver la página predeterminada de Nginx.
 
-#### Uso:
-```sh
-docker rm <id_del_contenedor>
-```
-Para forzar la eliminación de un contenedor en ejecución:
-```sh
-docker rm -f <id_del_contenedor>
+## Paso 7: Gestionar el Contenedor
+Aquí algunos comandos útiles para gestionar el contenedor:
+
+### Detener el Contenedor
+```bash
+docker stop mi_contenedor_nginx
 ```
 
-### `docker rmi`
-Este comando elimina una imagen.
-
-#### Uso:
-```sh
-docker rmi <id_de_la_imagen>
+### Iniciar el Contenedor
+```bash
+docker start mi_contenedor_nginx
 ```
 
-### Comandos Adicionales Útiles
-- **Iniciar sesión en el registro de Docker:** `docker login`
-- **Cerrar sesión en el registro de Docker:** `docker logout`
-- **Verificar la versión de Docker:** `docker --version`
-- **Inspeccionar detalles de un contenedor:** `docker inspect <id_del_contenedor>`
-- **Listar redes de Docker:** `docker network ls`
-- **Eliminar datos no utilizados:** `docker system prune`
+### Eliminar el Contenedor
+```bash
+docker rm mi_contenedor_nginx
+```
 
-Esta guía debería proporcionar una base sólida para trabajar con contenedores e imágenes de Docker. Para un uso más avanzado y opciones adicionales, consulta la documentación oficial de Docker.
+### Eliminar la Imagen
+```bash
+docker rmi mi_imagen_nginx
+```
+
+## Conclusión
+Siguiendo estos pasos, habrás desplegado exitosamente un contenedor Docker ejecutando un servidor Nginx. Este es un flujo de trabajo básico, pero efectivo, que puedes expandir y adaptar a tus necesidades específicas. Para obtener más información y opciones avanzadas, consulta la [documentación oficial de Docker](https://docs.docker.com/).
