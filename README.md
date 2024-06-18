@@ -1,148 +1,98 @@
-# Guía de Comandos Fundamentales de Docker
+Si las imágenes y contenedores se están regenerando automáticamente, es posible que estés utilizando Docker Swarm o algún otro servicio de orquestación que está recreando los servicios. Para asegurarte de que todo se detenga y elimine completamente, sigue estos pasos:
 
-## Introducción
-Este documento sirve como una guía comprensiva de los comandos fundamentales de Docker esenciales para la gestión de contenedores e imágenes. Docker es una plataforma que permite a los desarrolladores automatizar el despliegue de aplicaciones dentro de contenedores ligeros y portátiles.
+1. **Detener y eliminar los servicios de Docker Swarm**:
 
-### Tabla de Contenidos
-1. [Listar Contenedores en Ejecución](#listar-contenedores-en-ejecución)
-2. [Detener un Contenedor](#detener-un-contenedor)
-3. [Iniciar un Contenedor](#iniciar-un-contenedor)
-4. [Ejecutar un Nuevo Contenedor](#ejecutar-un-nuevo-contenedor)
-5. [Construir una Imagen](#construir-una-imagen)
-6. [Descargar una Imagen](#descargar-una-imagen)
-7. [Listar Imágenes](#listar-imágenes)
-8. [Subir una Imagen](#subir-una-imagen)
-9. [Inspeccionar los Logs de un Contenedor](#inspeccionar-los-logs-de-un-contenedor)
-10. [Eliminar Contenedores e Imágenes](#eliminar-contenedores-e-imágenes)
+    ```bash
+    docker service rm $(docker service ls -q)
+    ```
 
-## Listar Contenedores en Ejecución
-### `docker ps`
-Este comando lista todos los contenedores que están actualmente en ejecución.
+2. **Detener todos los contenedores**:
 
-#### Uso:
-```sh
-docker ps
-```
-Para ver todos los contenedores (en ejecución y detenidos):
-```sh
-docker ps -a
-```
+    ```bash
+    docker stop $(docker ps -aq)
+    ```
 
-## Detener un Contenedor
-### `docker stop`
-Este comando detiene un contenedor en ejecución.
+3. **Eliminar todos los contenedores**:
 
-#### Uso:
-```sh
-docker stop <id_del_contenedor>
-```
-Reemplaza `<id_del_contenedor>` con el ID o nombre del contenedor.
+    ```bash
+    docker rm -f $(docker ps -aq)
+    ```
 
-## Iniciar un Contenedor
-### `docker start`
-Este comando inicia un contenedor detenido.
+4. **Eliminar todas las imágenes**:
 
-#### Uso:
-```sh
-docker start <id_del_contenedor>
-```
-Reemplaza `<id_del_contenedor>` con el ID o nombre del contenedor.
+    ```bash
+    docker rmi -f $(docker images -q)
+    ```
 
-## Ejecutar un Nuevo Contenedor
-### `docker run`
-Este comando ejecuta un nuevo contenedor desde una imagen especificada.
+5. **Eliminar todos los volúmenes**:
 
-#### Uso:
-```sh
-docker run <nombre_de_la_imagen>
-```
-Para ejecutar un contenedor en modo desatendido con mapeo de puertos y montaje de volúmenes:
-```sh
-docker run -d -p 80:80 -v /ruta/en/host:/ruta/en/contenedor <nombre_de_la_imagen>
-```
-- `-d`: Ejecutar el contenedor en modo desatendido.
-- `-p 80:80`: Mapear el puerto 80 del host al puerto 80 del contenedor.
-- `-v /ruta/en/host:/ruta/en/contenedor`: Montar un volumen.
+    ```bash
+    docker volume prune -f
+    ```
 
-## Construir una Imagen
-### `docker build`
-Este comando construye una imagen a partir de un Dockerfile.
+6. **Eliminar todas las redes**:
 
-#### Uso:
-```sh
-docker build -t <nombre_de_la_imagen> .
-```
-- `-t <nombre_de_la_imagen>`: Etiqueta la imagen con un nombre.
-- `.`: Contexto para la construcción, usualmente el directorio actual.
+    ```bash
+    docker network prune -f
+    ```
 
-## Descargar una Imagen
-### `docker pull`
-Este comando descarga una imagen desde un registro de Docker (por ejemplo, Docker Hub).
+A continuación, te dejo todos los comandos juntos para que puedas ejecutarlos de una vez:
 
-#### Uso:
-```sh
-docker pull <nombre_de_la_imagen>
+```bash
+docker service rm $(docker service ls -q)
+docker stop $(docker ps -aq)
+docker rm -f $(docker ps -aq)
+docker rmi -f $(docker images -q)
+docker volume prune -f
+docker network prune -f
 ```
 
-## Listar Imágenes
-### `docker images`
-Este comando lista todas las imágenes almacenadas localmente.
+### Pasos Detallados
 
-#### Uso:
-```sh
-docker images
-```
+1. **Eliminar todos los servicios de Docker Swarm**:
 
-## Subir una Imagen
-### `docker push`
-Este comando sube una imagen a un registro de Docker.
+    Esto asegura que no haya servicios activos que puedan estar recreando los contenedores.
 
-#### Uso:
-```sh
-docker push <nombre_de_la_imagen>
-```
-Asegúrate de haber iniciado sesión en el registro y que el nombre de la imagen incluya el repositorio (por ejemplo, `usuario/nombre_de_la_imagen`).
+    ```bash
+    docker service rm $(docker service ls -q)
+    ```
 
-## Inspeccionar los Logs de un Contenedor
-### `docker logs`
-Este comando obtiene los logs de un contenedor.
+2. **Detener y eliminar todos los contenedores**:
 
-#### Uso:
-```sh
-docker logs <id_del_contenedor>
-```
-Para seguir los logs en tiempo real:
-```sh
-docker logs -f <id_del_contenedor>
-```
+    Detén todos los contenedores que están corriendo.
 
-## Eliminar Contenedores e Imágenes
-### `docker rm`
-Este comando elimina un contenedor.
+    ```bash
+    docker stop $(docker ps -aq)
+    ```
 
-#### Uso:
-```sh
-docker rm <id_del_contenedor>
-```
-Para forzar la eliminación de un contenedor en ejecución:
-```sh
-docker rm -f <id_del_contenedor>
-```
+    Luego, elimina todos los contenedores detenidos.
 
-### `docker rmi`
-Este comando elimina una imagen.
+    ```bash
+    docker rm -f $(docker ps -aq)
+    ```
 
-#### Uso:
-```sh
-docker rmi <id_de_la_imagen>
-```
+3. **Eliminar todas las imágenes**:
 
-### Comandos Adicionales Útiles
-- **Iniciar sesión en el registro de Docker:** `docker login`
-- **Cerrar sesión en el registro de Docker:** `docker logout`
-- **Verificar la versión de Docker:** `docker --version`
-- **Inspeccionar detalles de un contenedor:** `docker inspect <id_del_contenedor>`
-- **Listar redes de Docker:** `docker network ls`
-- **Eliminar datos no utilizados:** `docker system prune`
+    Forzar la eliminación de todas las imágenes.
 
-Esta guía debería proporcionar una base sólida para trabajar con contenedores e imágenes de Docker. Para un uso más avanzado y opciones adicionales, consulta la documentación oficial de Docker.
+    ```bash
+    docker rmi -f $(docker images -q)
+    ```
+
+4. **Eliminar todos los volúmenes no utilizados**:
+
+    Esto liberará espacio en disco eliminado los volúmenes no utilizados.
+
+    ```bash
+    docker volume prune -f
+    ```
+
+5. **Eliminar todas las redes no utilizadas**:
+
+    Esto asegurará que todas las redes no utilizadas sean eliminadas.
+
+    ```bash
+    docker network prune -f
+    ```
+
+Ejecutando estos comandos deberías poder detener y eliminar completamente todas las imágenes, contenedores, volúmenes y redes de Docker, evitando que se regeneren automáticamente.
